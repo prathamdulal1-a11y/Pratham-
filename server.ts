@@ -96,6 +96,7 @@ function extractErrorDetails(err: unknown): {
   status: number;
   message: string;
   retryAfterSec?: number;
+  quotaExhausted?: boolean;
 } {
   const rawMessage = err instanceof Error ? err.message : String(err);
   const statusMatch = rawMessage.match(/\b(400|401|403|404|429|500|502|503|504)\b/);
@@ -119,14 +120,29 @@ function extractErrorDetails(err: unknown): {
   }
 
   if (rawMessage.includes("RESOURCE_EXHAUSTED") || parsedStatus === 429) {
-    const retryMatch = upstreamMessage.match(/retry in\s+([\d.]+)s/i);
-    const retryAfterSec = retryMatch ? Math.ceil(Number(retryMatch[1])) : undefined;
+    const isDailyFreeTier =
+      upstreamMessage.includes("free_tier_requests") ||
+      upstreamMessage.includes("per day") ||
+      /\d+h\d+m/i.test(upstreamMessage);
+
+    const hmsMatch = upstreamMessage.match(/retry in\s+(?:(\d+)h)?(?:(\d+)m)?([\d.]+)s/i);
+    if (isDailyFreeTier) {
+      const hours = hmsMatch?.[1] ? `${hmsMatch[1]}h ` : "";
+      const mins = hmsMatch?.[2] ? `${hmsMatch[2]}m` : "";
+      const resetNote = hours || mins ? ` (resets in ~${(hours + mins).trim()})` : "";
+      return {
+        status: 429,
+        quotaExhausted: true,
+        message: `Daily Free Tier limit reached (10 requests/day per Gemini TTS model)${resetNote}. Add a billing-enabled GEMINI_API_KEY in AI Studio Settings > Secrets to remove this daily cap.`,
+      };
+    }
+
+    const secMatch = upstreamMessage.match(/retry in\s+([\d.]+)s/i);
+    const retryAfterSec = secMatch ? Math.min(120, Math.max(5, Math.ceil(Number(secMatch[1])))) : 15;
     return {
       status: 429,
       retryAfterSec,
-      message: retryAfterSec
-        ? `Gemini TTS rate limit reached. Please wait ${retryAfterSec}s and try again, or switch to a billing-enabled API key in Settings > Secrets for higher quota.`
-        : `Gemini TTS rate limit or quota reached (${upstreamMessage}). You can select a billing-enabled API key in Settings > Secrets to increase your quota.`,
+      message: `Gemini TTS rate limit reached. Please wait ${retryAfterSec}s and try again, or switch to a billing-enabled API key in Settings > Secrets for higher quota.`,
     };
   }
 
@@ -155,7 +171,7 @@ function extractErrorDetails(err: unknown): {
   };
 }
 
-const TTS_CACHE_LIMIT = 15;
+const TTS_CACHE_LIMIT = 40;
 const ttsCache = new Map<string, { audioBase64: string; mimeType: string }>();
 
 function getCacheKey(
@@ -513,6 +529,7 @@ async function startServer() {
       res.status(details.status).json({
         error: details.message,
         ...(details.retryAfterSec ? { retryAfterSec: details.retryAfterSec } : {}),
+        ...(details.quotaExhausted ? { quotaExhausted: true } : {}),
       });
     }
   });

@@ -164,6 +164,7 @@ export default function App() {
             mimeType?: string;
             error?: string;
             retryAfterSec?: number;
+            quotaExhausted?: boolean;
           } | null = null;
 
           if (rawText.trim().length > 0) {
@@ -179,7 +180,7 @@ export default function App() {
           }
 
           if (!res.ok || !payload?.audioBase64) {
-            if (res.status === 429) {
+            if (res.status === 429 && !payload?.quotaExhausted) {
               setCooldownSec(payload?.retryAfterSec ?? 15);
             }
             throw new Error(
