@@ -1,0 +1,8 @@
+{
+  "name": "Katha Swar",
+  "description": "An intimate Nepali love-story voice studio powered by Gemini 3.8 Flash TTS for melancholic, soulful storytelling.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

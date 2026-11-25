@@ -1,0 +1,39 @@
+{
+  "packageId": "com.kathaswar.app",
+  "host": "ais-pre-p5ac2jue5ksihmdvgns4ne-809710390087.europe-west2.run.app",
+  "name": "Katha Swar",
+  "launcherName": "Katha Swar",
+  "display": "standalone",
+  "themeColor": "#09090B",
+  "themeColorDark": "#09090B",
+  "navigationColor": "#09090B",
+  "navigationColorDark": "#09090B",
+  "navigationDividerColor": "#18181B",
+  "navigationDividerColorDark": "#18181B",
+  "backgroundColor": "#09090B",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "https://ais-pre-p5ac2jue5ksihmdvgns4ne-809710390087.europe-west2.run.app/pwa-512x512.png",
+  "maskableIconUrl": "https://ais-pre-p5ac2jue5ksihmdvgns4ne-809710390087.europe-west2.run.app/pwa-maskable-512x512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "kathaswar"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://ais-pre-p5ac2jue5ksihmdvgns4ne-809710390087.europe-west2.run.app/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://ais-pre-p5ac2jue5ksihmdvgns4ne-809710390087.europe-west2.run.app/",
+  "minSdkVersion": 21,
+  "orientation": "portrait"
+}
